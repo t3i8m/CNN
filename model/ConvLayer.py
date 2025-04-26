@@ -3,7 +3,7 @@ import numpy as np
 
 class ConvLayer():
 
-    def __init__(self, kernel_size:int, out_channels:int, pooling=2):
+    def __init__(self, kernel_size:int, out_channels:int, in_channels:int, pooling=2):
         """Initializer for the convolution layer:
             - kernel_size - (height x width) of the filter (e.g. 3x3),
             - out_channels - number of features(filters) we extract and get feature maps"""
@@ -11,23 +11,30 @@ class ConvLayer():
         self.kernel_size = kernel_size
         self.out_channels = out_channels
 
-        self.filters = [np.random.randn(kernel_size, kernel_size) for _ in range(out_channels)]
+        self.filters = [[np.random.randn(kernel_size, kernel_size) for _ in range(in_channels)] for _ in range(out_channels)]
         self.biases = [np.random.randn() for  _ in range(out_channels)]
         self.feature_maps = []
         self.max_poolings = []
         self.pooling = pooling
         
-    def forward(self, source:np.array)->(np.array):
-        """Apply forward propogation for the single conv layer"""
+    def forward(self, sources):
+
         self.feature_maps = []
-        for index, fltr in enumerate(self.filters):
-            for src in source:
-                fm = self.extract_feature_map(fltr, src, index)
-                self.feature_maps.append(fm)
-                self.max_poolings.append(self.max_pooling(fm, self.pooling ))
-        return self.feature_maps
+        self.max_poolings = []
+
+        for filt_id, filt_group in enumerate(self.filters):
+            summed_fm = None
+            for kernel, src in zip(filt_group, sources):
+                fm = self.convolve(kernel, src, filt_id)
+                summed_fm = fm if summed_fm is None else summed_fm + fm
+
+            mp = self.max_pooling(summed_fm, self.pooling)
+            self.feature_maps.append(summed_fm)
+            self.max_poolings.append(mp)
+
+        return self.max_poolings
     
-    def extract_feature_map(self, filter:np.array, src:np.array, filter_id:int)->(np.array):
+    def convolve(self, filter:np.array, src:np.array, filter_id:int)->(np.array):
         """Apply a single filter over the input src and return the feature map."""
         h_src, w_src = src.shape
         h_filter, w_filter = filter.shape
