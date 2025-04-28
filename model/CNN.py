@@ -31,7 +31,7 @@ class CNN():
             prev_channels = number_channels
             self.conv_layers.append(conv_layer)
             self.cnn_output = output_vector
-            self.ffnn = NN([self.cnn_output, 30, 10])
+            self.ffnn = None
 
         
     def feed_forward(self, y:np.array)->np.array:
