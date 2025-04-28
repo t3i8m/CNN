@@ -53,6 +53,9 @@ class ConvLayer():
                 feature_map[y, x] = max(0, summed)
 
         return feature_map      
+    
+    # def backward(self):
+
 
     def max_pooling(self, feature_map:np.array, pool_size:int):
         """Apply a max pooling filter over the input src and return the new feature map."""
