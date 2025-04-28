@@ -12,3 +12,7 @@ def sigma_prime_from_a(a:np.array)->np.array:
     """Sigma prime from the activations"""
     return a * (1 - a)
 
+def softmax(z:np.array):
+    exp_z = np.exp(z - np.max(z))
+    return exp_z / np.sum(exp_z)
+

@@ -48,9 +48,9 @@ class ConvLayer():
             for x in range(w_out):
                 cut = src[y:y+h_filter, x:x+w_filter]
 
-                dot_product = np.sum(cut * filter)+self.biases[filter_id]
+                summed = np.sum(cut * filter)+self.biases[filter_id]
                 # ReLu
-                feature_map[y, x] = max(0, dot_product)
+                feature_map[y, x] = max(0, summed)
 
         return feature_map      
 

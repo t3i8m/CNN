@@ -1,5 +1,5 @@
 import numpy as np
-from utils.activation_loss import loss_function, sigma_prime_from_a, sigmoid_function
+from utils.activation_loss import loss_function, sigma_prime_from_a, sigmoid_function, softmax
 import random
 
 class NN():
@@ -15,9 +15,11 @@ class NN():
         """Calculate the network response on the given input by applying a forward propogation"""
         self.activations = np.empty((self.num_layers,),dtype=object) # 1d array with the length of the layers number
         self.activations[0] = y
-        for layer in range(1, self.num_layers):
+        for layer in range(1, self.num_layers-1):
             z = np.dot(self.weights[layer-1], self.activations[layer-1])+self.bias[layer-1] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
             self.activations[layer] = sigmoid_function(z) # activation function
+        z = np.dot(self.weights[-2], self.activations[-2])+self.bias[-2] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
+        self.activations[-1] = softmax(z) # softmax function
         return self.activations[-1]
     
     def SGD(self, training_data:list, epochs:int, mini_batch_size:int, learning_rate:float, test_data = None)->None:
