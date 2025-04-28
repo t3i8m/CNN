@@ -4,6 +4,7 @@ import random
 from .FFNN.NN import NN
 from utils.activation_loss import cross_entropy, sigma_prime_from_a, sigmoid_function, softmax
 import os, pickle
+import matplotlib.pyplot as plt
 
 class CNN():
 
@@ -61,8 +62,11 @@ class CNN():
         train_size = len(training_data)
 
         for epoch in range(epochs):
-            random.shuffle(training_data)
+            loss_history = []
 
+
+            random.shuffle(training_data)
+            print(f"Entering Epoch #{epoch+1}")
             mini_batches = [training_data[n:n+mini_batch_size] for n in range(0, train_size, mini_batch_size)]
             epoch_loss = 0.0
             for mini_batch in mini_batches:
@@ -88,6 +92,7 @@ class CNN():
 
             avg_loss = epoch_loss / len(training_data)
             print(f"Epoch {epoch + 1}: loss = {avg_loss:.4f}")
+            loss_history.append(avg_loss)  
 
             if test_data:
                 correct = 0
@@ -98,6 +103,13 @@ class CNN():
                 acc = correct / len(test_data)
                 print(f"           val_acc = {acc:.3%}")
 
+        self.save_weights("checkpoints/epoch10.npz")  
+        plt.plot(range(1, epochs + 1), loss_history, marker='o')
+        plt.title("Training Loss vs Epoch")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.grid(True)
+        plt.show()
 
         return
     
