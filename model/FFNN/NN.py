@@ -48,3 +48,9 @@ class NN():
             self.bias[i] -= scale * self._db[i]
             self._dW[i].fill(0)
             self._db[i].fill(0)
+
+    def state_dict(self) -> dict:
+        return {
+            "weights": self.weights,   
+            "biases":  self.bias
+        }

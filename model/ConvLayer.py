@@ -40,7 +40,7 @@ class ConvLayer():
             for kernel, src in zip(filt_group, sources):
                 fm = self.convolve(kernel, src, filt_id)
                 summed_fm = fm if summed_fm is None else summed_fm + fm
-                
+
             summed_fm += self.biases[filt_id]
             relu_map = np.maximum(summed_fm, 0) # ReLu activation
             pooled_map, idx = self.max_pooling(relu_map, self.pooling)
@@ -145,3 +145,9 @@ class ConvLayer():
                 pooled_map[y, x] = max_elm
                 indices[y, x] = (iy, ix)
         return pooled_map, indices
+    
+    def state_dict(self) -> dict:
+        return {
+            "filters": self.filters,   
+            "biases":  self.biases
+        }

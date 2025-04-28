@@ -3,6 +3,7 @@ from .ConvLayer import ConvLayer
 import random
 from .FFNN.NN import NN
 from utils.activation_loss import cross_entropy, sigma_prime_from_a, sigmoid_function, softmax
+import os, pickle
 
 class CNN():
 
@@ -41,11 +42,12 @@ class CNN():
         for layer in self.conv_layers:
             maps = layer.forward(maps)
 
+        self._cached_maps = maps
+
         # transfrom to a (1xn) vector
         flat = self._flatten(maps)
-
-        if self.ffnn is None:
-            self.ffnn = NN([flat.shape[0], 30, 10])
+        if self.network is None:
+            self.network = NN([flat.shape[0], 30, 10])
         # print("flat: ", len(flat))
         predictions = self.network.feedforward(flat)
 
@@ -69,6 +71,7 @@ class CNN():
 
                 for x, y_true in zip(xs, ys):
                     y_hat = self.feed_forward(x)
+                    self._cached_maps = self.last_conv_maps
                     loss = cross_entropy(y_hat, y_true)
                     epoch_loss += loss
 
@@ -83,7 +86,7 @@ class CNN():
 
                 for layer in self.conv_layers:
                     layer.apply_gradients(learning_rate/mini_batch_size)  
-                self.ffnn.apply_gradients(learning_rate/mini_batch_size)   
+                self.network.apply_gradients(learning_rate/mini_batch_size)   
 
             avg_loss = epoch_loss / len(training_data)
             print(f"Epoch {epoch + 1}: loss = {avg_loss:.4f}")
@@ -105,7 +108,7 @@ class CNN():
         """Call back‑prop FFNN and ConvLayers, store delta."""
 
         # FFNN: returns delatW/deltab and gradients by (dL/dflat)
-        dL_dflat = self.ffnn.backward_from_loss(dL_dy)  # shape (flat_dim, 1)
+        dL_dflat = self.network.backward_from_loss(dL_dy)  # shape (flat_dim, 1)
 
         last_maps_shapes = [fm.shape for fm in self._cached_maps]
         cursor = 0
@@ -119,7 +122,38 @@ class CNN():
 
         for layer in reversed(self.conv_layers):
             d_prev = layer.backward(d_prev)
+
+    def state_dict(self) -> dict:
+        return {
+            "conv":  [layer.state_dict() for layer in self.conv_layers],
+            "ffnn":  self.ffnn.state_dict()
+        }
+    
+    def save_weights(self, path: str, *, compress: bool = True) -> None:
+        """Save weights/biases into the file"""
+        state = self.state_dict()
+
+        if path.endswith(".npz"):
+            flat = {}
             
+            for i, layer in enumerate(state["conv"]):
+                for j, f in enumerate(layer["filters"]):
+                    flat[f"conv{i}_W{j}"] = np.stack(f)    
+                flat[f"conv{i}_b"] = np.asarray(layer["biases"])
+
+            for k, W in enumerate(state["ffnn"]["weights"]):
+                flat[f"ff_W{k}"] = W
+                flat[f"ff_b{k}"] = state["ffnn"]["biases"][k]
+
+            if compress:
+                np.savez_compressed(path, **flat)
+            else:
+                np.savez(path, **flat)
+
+        else: 
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "wb") as f:
+                pickle.dump(state, f)
 
     @staticmethod
     def _flatten(feature_maps: np.ndarray) -> np.ndarray:
@@ -130,3 +164,4 @@ class CNN():
         y = np.zeros((num_classes, 1))
         y[label] = 1.0
         return y
+    
