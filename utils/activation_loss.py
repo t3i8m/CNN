@@ -1,8 +1,10 @@
 import numpy as np
+SIGMOID_CLIP = 709.0 
 
 def sigmoid_function(x:np.array)->np.array:
     """A sigmoid activation function implementation"""
-    return 1.0/(1.0+ np.exp(-x))
+    x = np.clip(x, -SIGMOID_CLIP, SIGMOID_CLIP)
+    return 1.0 / (1.0 + np.exp(-x))
 
 def loss_function(predicted:np.array, real:np.array):
     """Loss function to calculate the sum of squared errors (SSE)"""
