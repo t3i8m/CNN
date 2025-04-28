@@ -9,8 +9,8 @@ def main():
     dummy_img = np.zeros((28, 28))
     flat_len = len(cnn.feed_forward(dummy_img))
     print("flat =", flat_len)  #400
-    training_data , validation_data , test_data = load_data_wrapper()
-    
+    training_data, validation_data, test_data = load_data_wrapper()
+
     print("------------Data was loaded------------------")
     print(test_data[0])
 

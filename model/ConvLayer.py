@@ -10,6 +10,7 @@ class ConvLayer():
         
         self.kernel_size = kernel_size
         self.out_channels = out_channels
+        self.in_channels = in_channels
 
         self.filters = [[np.random.randn(kernel_size, kernel_size) for _ in range(in_channels)] for _ in range(out_channels)]
         self.biases = [np.random.randn() for  _ in range(out_channels)]

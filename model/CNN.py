@@ -71,16 +71,14 @@ class CNN():
 
                 for x, y_true in zip(xs, ys):
                     y_hat = self.feed_forward(x)
-                    self._cached_maps = self.last_conv_maps
                     loss = cross_entropy(y_hat, y_true)
                     epoch_loss += loss
 
                     dL_dy = y_hat - y_true # gradients by the output
-                    self._cached_maps = [x]
 
-                    for layer in self.conv_layers:
-                        x = layer.forward([x])[0]
-                        self._cached_maps.append(x)
+                    # for layer in self.conv_layers:
+                    #     x = layer.forward([x])[0]
+                    #     self._cached_maps.append(x)
 
                     self.backward(dL_dy)
 
