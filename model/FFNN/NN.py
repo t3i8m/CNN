@@ -21,7 +21,7 @@ class NN():
         for layer in range(1, self.num_layers-1):
             z = np.dot(self.weights[layer-1], self.activations[layer-1])+self.bias[layer-1] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
             self.activations[layer] = sigmoid_function(z) # activation function
-        z = np.dot(self.weights[-2], self.activations[-2])+self.bias[-2] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
+        z = np.dot(self.weights[-1], self.activations[-2])+self.bias[-1] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
         self.activations[-1] = softmax(z) # softmax function
         return self.activations[-1]
     
@@ -54,3 +54,7 @@ class NN():
             "weights": self.weights,   
             "biases":  self.bias
         }
+    
+    def set_state_dict(self, state: dict) -> None:
+        self.weights = [w.copy() for w in state["weights"]]
+        self.bias    = [b.copy() for b in state["biases"]]

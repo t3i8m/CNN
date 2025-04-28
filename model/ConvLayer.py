@@ -151,3 +151,14 @@ class ConvLayer():
             "filters": self.filters,   
             "biases":  self.biases
         }
+
+    def set_state_dict(self, state: dict) -> None:
+        """
+        state = {
+            "filters": list[list[np.ndarray]],
+            "biases" : list[np.ndarray  или  float]
+        }
+        """
+        self.filters = [ [f.copy() for f in group] for group in state["filters"] ]
+        self.biases  = [ b.copy() if isinstance(b, np.ndarray) else b
+                         for b in state["biases"] ]

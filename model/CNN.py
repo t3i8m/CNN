@@ -30,7 +30,7 @@ class CNN():
             prev_channels = number_channels
             self.conv_layers.append(conv_layer)
             self.cnn_output = output_vector
-            self.network = NN([self.cnn_output, 30, 10])
+            self.ffnn = NN([self.cnn_output, 30, 10])
 
         
     def feed_forward(self, y:np.array)->np.array:
@@ -46,10 +46,10 @@ class CNN():
 
         # transfrom to a (1xn) vector
         flat = self._flatten(maps)
-        if self.network is None:
-            self.network = NN([flat.shape[0], 30, 10])
+        if self.ffnn is None:
+            self.ffnn = NN([flat.shape[0], 30, 10])
         # print("flat: ", len(flat))
-        predictions = self.network.feedforward(flat)
+        predictions = self.ffnn.feedforward(flat)
 
         return predictions
 
@@ -86,7 +86,7 @@ class CNN():
 
                 for layer in self.conv_layers:
                     layer.apply_gradients(learning_rate/mini_batch_size)  
-                self.network.apply_gradients(learning_rate/mini_batch_size)   
+                self.ffnn.apply_gradients(learning_rate/mini_batch_size)   
 
             avg_loss = epoch_loss / len(training_data)
             print(f"Epoch {epoch + 1}: loss = {avg_loss:.4f}")
@@ -108,7 +108,7 @@ class CNN():
         """Call back‑prop FFNN and ConvLayers, store delta."""
 
         # FFNN: returns delatW/deltab and gradients by (dL/dflat)
-        dL_dflat = self.network.backward_from_loss(dL_dy)  # shape (flat_dim, 1)
+        dL_dflat = self.ffnn.backward_from_loss(dL_dy)  # shape (flat_dim, 1)
 
         last_maps_shapes = [fm.shape for fm in self._cached_maps]
         cursor = 0
@@ -155,13 +155,48 @@ class CNN():
             with open(path, "wb") as f:
                 pickle.dump(state, f)
 
+    def load_weights(self, path: str) -> None:
+        if path.endswith(".npz"):
+            data = np.load(path)
+            state = {"conv": [], "ffnn": {"weights": [], "biases": []}}
+
+            n_conv = len(self.conv_layers)
+            for i in range(n_conv):
+                filters = []
+                j = 0
+                while f"conv{i}_W{j}" in data.files:
+                    filters.append([f for f in data[f"conv{i}_W{j}"]])
+                    j += 1
+                biases = data[f"conv{i}_b"]
+                state["conv"].append({"filters": filters, "biases": biases})
+
+            k = 0
+            while f"ff_W{k}" in data.files:
+                state["ffnn"]["weights"].append(data[f"ff_W{k}"])
+                state["ffnn"]["biases"].append(data[f"ff_b{k}"])
+                k += 1
+
+        else:  # pickle
+            with open(path, "rb") as f:
+                state = pickle.load(f)
+
+        self.load_state_dict(state)
+
     @staticmethod
     def _flatten(feature_maps: np.ndarray) -> np.ndarray:
         """Concat all of the feature maps into a column (n, 1)."""
         return np.concatenate([fm.flatten() for fm in feature_maps])[:, None]
 
-    def _one_hot(self, label: int, num_classes: int = 10) -> np.ndarray:
+    def _one_hot(self, label, num_classes: int = 10) -> np.ndarray:
+        
+        if isinstance(label, np.ndarray) and label.size == num_classes and label.max() == 1:
+            return label.reshape(num_classes, 1)
+
+        if isinstance(label, np.ndarray):
+            label = int(label.flatten()[0])
+
         y = np.zeros((num_classes, 1))
-        y[label] = 1.0
+        y[int(label)] = 1.0
         return y
+
     
