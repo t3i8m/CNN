@@ -82,8 +82,8 @@ class CNN():
                     self.backward(dL_dy)
 
                 for layer in self.conv_layers:
-                    layer.apply_gradients(learning_rate / mini_batch_size)  
-                self.ffnn.apply_gradients(learning_rate / mini_batch_size)   
+                    layer.apply_gradients(learning_rate/mini_batch_size)  
+                self.ffnn.apply_gradients(learning_rate/mini_batch_size)   
 
             avg_loss = epoch_loss / len(training_data)
             print(f"Epoch {epoch + 1}: loss = {avg_loss:.4f}")
@@ -91,7 +91,7 @@ class CNN():
             if test_data:
                 correct = 0
                 for x, lbl in test_data:
-                    pred = np.argmax(self.forward(x))
+                    pred = np.argmax(self.feed_forward(x))
                     if pred == lbl:
                         correct += 1
                 acc = correct / len(test_data)
