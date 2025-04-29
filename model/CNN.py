@@ -48,16 +48,12 @@ class CNN():
 
         # transfrom to a (1xn) vector
         flat = self._flatten(maps)
+        print(f"[CNN] flat vector: shape={flat.shape}, "
+          f"min={flat.min():.4f}, max={flat.max():.4f}, mean={flat.mean():.4f}")
         if self.ffnn is None:
             self.ffnn = NN([flat.shape[0], 30, 10])
-        # print("flat: ", len(flat))
         predictions = self.ffnn.feedforward(flat)
-
         return predictions
-    
-
-
-
 
     def SGD(self, training_data:list, epochs:int, mini_batch_size:int, learning_rate:float, test_data = None)->None:
         """Stochastic gradient descent algorithm to train the network"""
@@ -67,6 +63,17 @@ class CNN():
         train_size = len(training_data)
         loss_history = []
 
+        
+
+        
+        if test_data:
+            correct = 0
+            for x, lbl in test_data:
+                pred = np.argmax(self.feed_forward(x))
+                if pred == lbl:
+                    correct += 1
+            acc = correct / len(test_data)
+            print(f"           val_acc = {acc:.3%}")
         for epoch in range(epochs):
 
             random.shuffle(training_data)
@@ -103,15 +110,6 @@ class CNN():
             avg_loss = epoch_loss / len(training_data)
             print(f"Epoch {epoch + 1}: loss = {avg_loss:.4f}")
             loss_history.append(avg_loss)  
-
-            if test_data:
-                correct = 0
-                for x, lbl in test_data:
-                    pred = np.argmax(self.feed_forward(x))
-                    if pred == lbl:
-                        correct += 1
-                acc = correct / len(test_data)
-                print(f"           val_acc = {acc:.3%}")
 
         self.save_weights("checkpoints/epoch10.npz")  
         plt.plot(range(1, epochs + 1), loss_history, marker='o')

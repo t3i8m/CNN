@@ -47,7 +47,15 @@ class ConvLayer():
 
             summed_fm += self.biases[filt_id]
             relu_map = np.maximum(summed_fm, 0) # ReLu activation
+
+            print(f"[Conv {filt_id}] after ReLU: min={relu_map.min():.4f}, "
+              f"max={relu_map.max():.4f}, mean={relu_map.mean():.4f}")
+
             pooled_map, idx = self.max_pooling(relu_map, self.pooling)
+            print(pooled_map)
+            print(f"[Conv {filt_id}] after Pool: min={pooled_map.min():.4f}, "
+              f"max={pooled_map.max():.4f}, mean={pooled_map.mean():.4f}")
+
             self._feature_maps.append(relu_map)
             pooled_out.append(pooled_map)
             self._pool_indices.append(idx)
@@ -58,6 +66,8 @@ class ConvLayer():
 
         d_prev= [np.zeros_like(src) for src in self._inputs]
         k = self.kernel_size
+        print(f"[Conv.backward] incoming d_pool norms = {d_prev}")
+
 
         for oc in range(self.out_channels):
             grad_pooled = d_pool[oc]                      # (h_out, w_out)
@@ -144,6 +154,7 @@ class ConvLayer():
                 self._dW[oc][ic].fill(0)
             self.biases[oc] -= scale * self._db[oc]
             self._db[oc] = 0.0
+
     
     def convolve(self, filter:np.array, src:np.array, filter_id:int)->(np.array):
         """Apply a single filter over the input src and return the feature map."""
@@ -162,7 +173,8 @@ class ConvLayer():
                 summed = np.sum(cut * filter)
 
                 feature_map[y, x] = summed
-
+        print(f"[Conv {filter_id}] conv: min={feature_map.min():.4f}, "
+            f"max={feature_map.max():.4f}, mean={feature_map.mean():.4f}")
         return feature_map      
     
 
@@ -190,7 +202,6 @@ class ConvLayer():
 
                 pooled_map[y_out, x_out] = cut[local_idx]
                 indices[y_out, x_out] = (iy, ix)
-
         return pooled_map, indices
     
     def state_dict(self) -> dict:

@@ -1,5 +1,5 @@
 import numpy as np
-from utils.activation_loss import loss_function, sigma_prime_from_a, sigmoid_function, softmax
+from utils.activation_loss import softmax
 import random
 
 class NN():
@@ -30,7 +30,8 @@ class NN():
         self.activations[0] = y
         for layer in range(1, self.num_layers-1):
             z = np.dot(self.weights[layer-1], self.activations[layer-1])+self.bias[layer-1] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
-            self.activations[layer] = np.maximum(z, 0) # activation function
+            self.activations[layer] = np.maximum(z, 0) # activation function ReLu
+            print(f"[FFNN layer {self.activations[layer]}] min={self.activations[layer].min():.4f}, max={self.activations[layer].max():.4f}, mean={self.activations[layer].mean():.4f}")
         z = np.dot(self.weights[-1], self.activations[-2])+self.bias[-1] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
         self.activations[-1] = softmax(z) # softmax function
         return self.activations[-1]
