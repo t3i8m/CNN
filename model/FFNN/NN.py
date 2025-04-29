@@ -15,7 +15,7 @@ class NN():
             self.bias= []
 
             for prev, curr in zip(self.layers[:-1], self.layers[1:]):
-                scale = np.sqrt(1.0 / prev)        
+                scale = np.sqrt(2.0 / prev)        
                 W = np.random.randn(curr, prev) * scale
                 b = np.zeros((curr, 1))           
                 self.weights.append(W)
@@ -44,7 +44,8 @@ class NN():
         for l in range(2, self.num_layers):
             a_prev = self.activations[-l - 1]
             a_curr = self.activations[-l]
-            error = np.dot(self.weights[-l + 1].T, error) * sigma_prime_from_a(a_curr)
+            relu_prime = (a_curr > 0).astype(float)
+            error = np.dot(self.weights[-l + 1].T, error) * relu_prime
             self._db[-l] += error
             self._dW[-l] += np.dot(error, a_prev.T)
 

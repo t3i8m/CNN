@@ -93,6 +93,47 @@ class ConvLayer():
                         dX[y, x] += np.sum(region * rot_filt)
 
         return d_prev  
+    
+    # def backward(self, d_pool: list) -> list:
+    #     d_prev = [np.zeros_like(src) for src in self._inputs]
+    #     k = self.kernel_size
+    #     stride = 1
+
+    #     for oc in range(self.out_channels):
+    #         grad_pool = d_pool[oc]
+    #         relu_map = self._feature_maps[oc]
+    #         pool_indices = self._pool_indices[oc]
+
+    #         d_relu = np.zeros_like(relu_map)
+    #         for (y_pool, x_pool), (y_relu, x_relu) in np.ndenumerate(pool_indices):
+    #             if relu_map[y_relu, x_relu] > 0:
+    #                 d_relu[y_relu, x_relu] = grad_pool[y_pool, x_pool]
+
+    #         self._db[oc] += d_relu.sum()
+
+    #         padded = np.pad(d_relu, ((k-1, k-1), (k-1, k-1)), mode='constant')
+    #         rot_filters = [np.rot90(self.filters[oc][ic], 2) for ic in range(self.in_channels)]
+
+    #         for ic in range(self.in_channels):
+    #             src = self._inputs[ic]
+    #             h_src, w_src = src.shape
+    #             h_drelu, w_drelu = d_relu.shape
+
+    #             dW = np.zeros_like(self.filters[oc][ic])
+    #             for y in range(h_drelu):
+    #                 for x in range(w_drelu):
+    #                     window = src[y:y+k, x:x+k]
+    #                     dW += d_relu[y, x] * window
+    #             self._dW[oc][ic] += dW
+
+    #             rf = rot_filters[ic]
+    #             for y in range(h_src):
+    #                 for x in range(w_src):
+    #                     region = padded[y:y+k, x:x+k]
+    #                     d_prev[ic][y, x] += np.sum(region * rf)
+
+    #     return d_prev
+
 
     def apply_gradients(self, lr: float, batch_size: int = 1) -> None:
         """AAApply the gradients"""
