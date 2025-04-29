@@ -12,7 +12,10 @@ class ConvLayer():
         self.out_channels = out_channels
         self.in_channels = in_channels
 
-        self.filters = [[np.random.randn(kernel_size, kernel_size) for _ in range(in_channels)] for _ in range(out_channels)]
+        fan_in = in_channels * kernel_size * kernel_size
+        scale  = np.sqrt(2.0 / fan_in)
+
+        self.filters = [[np.random.randn(kernel_size, kernel_size)* scale for _ in range(in_channels)] for _ in range(out_channels)]
         self.biases = [np.random.randn() for  _ in range(out_channels)]
         self.feature_maps = []
         self.max_poolings = []

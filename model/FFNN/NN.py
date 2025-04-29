@@ -7,9 +7,19 @@ class NN():
             """Args get all of the layers including input/output and generates weights/biases from the Normal distribution"""
             self.layers = args[0]
             self.num_layers = len(args[0])
-            self.weights = [np.random.randn(curr, prev) for prev, curr in zip(self.layers[0:], self.layers[1:])]
+            # self.weights = [np.random.randn(curr, prev) for prev, curr in zip(self.layers[0:], self.layers[1:])]
 
-            self.bias = [np.random.randn(n, 1) for n in self.layers[1:]]
+            # self.bias = [np.random.randn(n, 1) for n in self.layers[1:]]
+
+            self.weights     = []
+            self.bias        = []
+
+            for prev, curr in zip(self.layers[:-1], self.layers[1:]):
+                scale = np.sqrt(1.0 / prev)        
+                W = np.random.randn(curr, prev) * scale
+                b = np.zeros((curr, 1))           
+                self.weights.append(W)
+                self.bias.append(b)
 
             self._dW = [np.zeros_like(w) for w in self.weights]
             self._db = [np.zeros_like(b) for b in self.bias]
