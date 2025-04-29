@@ -11,8 +11,8 @@ class NN():
 
             # self.bias = [np.random.randn(n, 1) for n in self.layers[1:]]
 
-            self.weights     = []
-            self.bias        = []
+            self.weights= []
+            self.bias= []
 
             for prev, curr in zip(self.layers[:-1], self.layers[1:]):
                 scale = np.sqrt(1.0 / prev)        
@@ -30,7 +30,7 @@ class NN():
         self.activations[0] = y
         for layer in range(1, self.num_layers-1):
             z = np.dot(self.weights[layer-1], self.activations[layer-1])+self.bias[layer-1] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
-            self.activations[layer] = sigmoid_function(z) # activation function
+            self.activations[layer] = np.maximum(z, 0) # activation function
         z = np.dot(self.weights[-1], self.activations[-2])+self.bias[-1] #linear combination of the [num_neuron x prev_layer_neuron] * [prev_layer_neuron x 1] + [num_neuron, 1]
         self.activations[-1] = softmax(z) # softmax function
         return self.activations[-1]
