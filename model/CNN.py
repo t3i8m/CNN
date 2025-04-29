@@ -10,7 +10,7 @@ class CNN():
 
     def __init__(self, layers, first_in_channels: int = 1, output_vector = 400):
         """Initializes convolutional neural network with dynamic number of arguments:
-        - layers - [[kernel_size_1st_layer, number_channels_1st_layer], [kernel_size_2nd_layer, number_channels_2nd_layer]...]"""
+        - layers - [[kernel_size_1st_layer, number_filters_1st_layer], [kernel_size_2nd_layer, number_filters_2nd_layer]...]"""
 
         # we check the input data size and data types
         self.conv_layers = []
@@ -38,8 +38,9 @@ class CNN():
         """Calculate the network response on the given input by applying a forward propogation
             - y - (nxn) input image encoded matrix
             Output: one high dimensional vector"""
-
-        maps = [y]           
+        y = self.preprocess(y)
+        maps = [y]
+                   
         for layer in self.conv_layers:
             maps = layer.forward(maps)
 
@@ -53,6 +54,10 @@ class CNN():
         predictions = self.ffnn.feedforward(flat)
 
         return predictions
+    
+
+
+
 
     def SGD(self, training_data:list, epochs:int, mini_batch_size:int, learning_rate:float, test_data = None)->None:
         """Stochastic gradient descent algorithm to train the network"""
@@ -60,24 +65,26 @@ class CNN():
             test_size = len(test_data)
 
         train_size = len(training_data)
+        loss_history = []
 
         for epoch in range(epochs):
-            loss_history = []
-
 
             random.shuffle(training_data)
             print(f"Entering Epoch #{epoch+1}")
             mini_batches = [training_data[n:n+mini_batch_size] for n in range(0, train_size, mini_batch_size)]
             epoch_loss = 0.0
-            for mini_batch in mini_batches:
+            for index,mini_batch in enumerate(mini_batches):
+                batch_loss = 0
+
                 xs = [x for x, _ in mini_batch]
                 ys = [self._one_hot(lbl) for _, lbl in mini_batch]
 
                 for x, y_true in zip(xs, ys):
                     y_hat = self.feed_forward(x)
+
                     loss = cross_entropy(y_hat, y_true)
                     epoch_loss += loss
-
+                    batch_loss+=loss
                     dL_dy = y_hat - y_true # gradients by the output
 
                     # for layer in self.conv_layers:
@@ -86,9 +93,12 @@ class CNN():
 
                     self.backward(dL_dy)
 
+                batch_len = len(mini_batch)               
                 for layer in self.conv_layers:
-                    layer.apply_gradients(learning_rate/mini_batch_size)  
-                self.ffnn.apply_gradients(learning_rate/mini_batch_size)   
+                    layer.apply_gradients(learning_rate, batch_size=batch_len)
+                self.ffnn.apply_gradients(learning_rate, batch_size=batch_len)
+
+                print(f"    Batch {index+1}/{len(mini_batches)}. Batch avg loss {batch_loss/len(mini_batch)}")
 
             avg_loss = epoch_loss / len(training_data)
             print(f"Epoch {epoch + 1}: loss = {avg_loss:.4f}")
@@ -209,4 +219,5 @@ class CNN():
         y[int(label)] = 1.0
         return y
 
-    
+    def preprocess(self, img):
+        return img.astype(np.float32) / 255.0

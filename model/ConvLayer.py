@@ -116,8 +116,8 @@ class ConvLayer():
                 cut = src[y:y+h_filter, x:x+w_filter]
 
                 summed = np.sum(cut * filter)
-                # ReLu
-                feature_map[y, x] = max(0, summed)
+
+                # feature_map[y, x] = max(0, summed)
 
         return feature_map      
     
@@ -134,17 +134,18 @@ class ConvLayer():
 
         pooled_map = np.zeros((h_out, w_out))
         indices = np.zeros((h_out, w_out, 2), dtype=int)
-        for y in range(h_out):
-            for x in range(w_out):
-                cut = feature_map[y:y+pool_size, x:x+pool_size]
-                y0, x0 = y * pool_size, x * pool_size
+        for y_out, y0 in enumerate(range(0, h_src, pool_size)):
+            for x_out, x0 in enumerate(range(0, w_src, pool_size)):
+                cut = feature_map[y0:y0+pool_size, x0:x0+pool_size]
+
+                y0, x0 = y_out * pool_size, x_out * pool_size
 
                 local_idx = np.unravel_index(np.argmax(cut), cut.shape)
 
                 iy, ix = y0 + local_idx[0], x0 + local_idx[1]
                 max_elm = np.max(cut)
-                pooled_map[y, x] = max_elm
-                indices[y, x] = (iy, ix)
+                pooled_map[y_out, x_out] = max_elm
+                indices[y_out, x_out] = (iy, ix)
         return pooled_map, indices
     
     def state_dict(self) -> dict:
