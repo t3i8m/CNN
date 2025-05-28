@@ -1,0 +1,45 @@
+# Convolutional Neural Network for MNIST Digit Recognition
+
+This project implements a Convolutional Neural Network (CNN) from scratch (without Keras/TensorFlow/PyTorch) to classify handwritten digits from the MNIST dataset.
+
+## 🧠 Project Goal
+To better understand **how convolutional neural networks work under the hood** by building one from scratch without high-level ML frameworks.
+
+## 📁 Project Structure
+```
+CNN/
+├── checkpoints/ # Saved model weights
+├── data/
+│ └── mnist.pkl.gz # Compressed MNIST data file
+├── model/
+│ ├── CNN.py # Main CNN architecture
+│ ├── ConvLayer.py # Custom convolutional layer
+│ ├── init.py
+│ └── FFNN/
+│ └── NN.py # Fully-connected network (alternative)
+├── utils/
+│ ├── activation_loss.py # Activation functions and loss functions
+│ ├── mnist_loader.py # MNIST data loader
+│ ├── init.py
+├── main.py # Entry point for training and evaluation
+├── training.py # Training loop
+```
+## 📦 Requirements
+- Python 3.7+
+- NumPy
+- gzip, pickle (from Python standard library)
+
+To install the required packages: ```pip install numpy```
+
+## 🚀 How to Run
+1. Make sure `mnist.pkl.gz` is present in the `data/` folder.
+2. Run training: ```python main.py```
+
+## ✅ Features
+- Custom implementation of convolutional layers
+- Custom implementation for both CNN and FFNN architectures
+- MNIST digit classification
+- Modular and extensible codebase
+
+> ⚠️ Training and hyperparameter tuning are **still in progress**. Results shown are preliminary.
+
