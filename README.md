@@ -1,5 +1,8 @@
 # Convolutional Neural Network for MNIST Digit Recognition
 
+![image](https://github.com/user-attachments/assets/215e95ff-b070-4a86-8a39-5f1d0f2ebe40)
+![Source: Medium article by Abhishek Jain](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*fD1kDcF3K4C9Mr6Niz2pNg.png)
+
 This project implements a Convolutional Neural Network (CNN) from scratch (without Keras/TensorFlow/PyTorch) to classify handwritten digits from the MNIST dataset.
 
 ## 🧠 Project Goal
