@@ -11,7 +11,7 @@ To better understand **how convolutional neural networks work under the hood** b
 ## 📁 Project Structure
 ```
 CNN/
-├── checkpoints/ # Saved model weights
+├── checkpoints/ # Saved model weights 
 ├── data/
 │ └── mnist.pkl.gz # Compressed MNIST data file
 ├── model/
@@ -19,7 +19,7 @@ CNN/
 │ ├── ConvLayer.py # Custom convolutional layer
 │ ├── init.py
 │ └── FFNN/
-│ └── NN.py # Fully-connected network (alternative)
+│ └── NN.py # Fully-connected network 
 ├── utils/
 │ ├── activation_loss.py # Activation functions and loss functions
 │ ├── mnist_loader.py # MNIST data loader
